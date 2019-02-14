@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hello NW.js</title>
+        <link rel="stylesheet" href="../styles/common.css">
+    </head>
+    <body>
+        <h1>Hello NW.js</h1>
+
+        <div>
+            [<span id="time"></span>] KeyCode: <span id="key-code">-</span>
+        </div>
+
+        <hr>
+        <div>
+            <div id="coffea">
+                Update: <span class="status">-</span>
+                <ol></ol>
+            </div>
+        </div>
+
+        <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+        <script src="../node_modules/moment/min/moment.min.js"></script>
+        <script>
+         // 時刻更新
+         var now = () => {
+             $('#time').text(moment().format('YYYY-MM-DD HH:mm:ss'))
+         }
+         now()
+         setInterval(now, 1000)
+
+         // Coffea更新
+         var coffea = () => {
+             $.ajax({
+                 url: 'https://api.thingspeak.com/channels/611563/feeds.json',
+                 type: 'GET'
+             }).done((res) => {
+                 if (res.feeds && res.feeds.length > 0) {
+                     $('#coffea .status').text($('#time').text() + ' [OK]')
+                     $('#coffea ol').empty()
+                     var feed = res.feeds.pop()
+                     Object.keys(feed).forEach((key) => {
+                         var def = {
+                             'entry_id': true,
+                             'created_at': true,
+                         }
+                         var head = def.hasOwnProperty(key) ? key : res.channel[key]
+                         $('#coffea ol').append('<li><span class="key">' + head + '</span><span class="value">' + feed[key] + '</span></li>')
+                     })
+                 } else {
+                     $('#coffea .status').text($('#time').text() + ' [NO DATA]')
+                 }
+             }).fail((err) => {
+                 $('#coffea .status').text($('#time').text() + ' [NG]')
+             })
+         }
+         coffea()
+         setInterval(coffea, 60 * 1000)
+
+         // キーイベント
+         document.onkeydown = (e) => {
+             var keycode = false
+
+             if (e) event = e
+
+             if (event) {
+                 if (event.keyCode) {
+                     keyCode = event.keyCode
+                 } else if (event.which) {
+                     keyCode = event.which
+                 }
+             }
+
+             $('#key-code').text(keyCode ? keyCode : '-')
+         }
+        </script>
+    </body>
+</html>

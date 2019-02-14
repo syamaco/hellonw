@@ -1,0 +1,12 @@
+{
+    "name": "HelloNW",
+    "version": "1.0.0",
+    "devDependencies": {
+        "nw": "^0.36.1",
+        "nw-builder": "^3.5.7"
+    },
+    "scripts": {
+        "dev": "node_modules/nw/bin/nw src/",
+        "prod": "node_modules/nw-builder/bin/nwbuild  --platforms win32,win64,osx64,linux32,linux64 --buildDir dist/ src/"
+    }
+}
